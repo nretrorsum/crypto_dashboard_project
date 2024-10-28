@@ -1,3 +1,5 @@
+from locale import currency
+
 from aiohttp import ClientSession
 import asyncio
 import os
@@ -14,7 +16,7 @@ class HTTPClient:
 
 
 #https://pro-api.coinmarketcap.com
-class DataRequest(HTTPClient):
+class AllCoinsRequest(HTTPClient):
     async def get_data(self):
         async with self._session.get('/v1/cryptocurrency/listings/latest') as resp:
             result = await resp.json() # Отладочный вывод для проверки содержимого
@@ -23,3 +25,12 @@ class DataRequest(HTTPClient):
             else:
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
 
+class CoinRequest(HTTPClient):
+    async def get_coin_data(self, currency_id: int):
+        async with self._session.get('/v2/cryptocurrency/quotes/latest',
+                                     params={'id':currency_id}) as resp:
+            result = await resp.json()
+            if resp.status == 200:
+                return result['data'][str(currency_id)]
+            else:
+                return {"error": f"Failed to fetch data, status code: {resp.status}"}

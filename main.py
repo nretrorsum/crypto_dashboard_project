@@ -1,19 +1,32 @@
 from fastapi import FastAPI
-from api_request import AllCoinsRequest, CoinRequest
-from news_processing import GetNews
-from config import NEWS_API_KEY
+from api_processing.api_request import AllCoinsRequest, CoinRequest
+from api_processing.news_processing import news_api_processing
+from auth.auth import auth_router
+from routers.user_routers import user_router
+from config import CMC_API_KEY
 
-news_api_processing = GetNews(NEWS_API_KEY)
 app = FastAPI()
+app.include_router(
+    auth_router,
+    prefix="/auth",
+    tags=["Auth"]
+)
+
+app.include_router(
+    user_router,
+    prefix="/users",
+    tags=["Users"]
+)
+
 
 
 data_request = AllCoinsRequest(
     base_url= 'https://pro-api.coinmarketcap.com',
-    api_key= '05833a2e-b625-4957-9ca8-dc63b304df8e',
+    api_key= f'{CMC_API_KEY}',
 )
 coin_data_request = CoinRequest(
     base_url= 'https://pro-api.coinmarketcap.com',
-    api_key= '05833a2e-b625-4957-9ca8-dc63b304df8e',
+    api_key= f'{CMC_API_KEY}',
 )
 @app.get("/currencies")
 async def get_currencies():

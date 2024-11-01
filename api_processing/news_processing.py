@@ -1,4 +1,5 @@
 from httpx import AsyncClient
+from config import NEWS_API_KEY
 
 
 class GetNews:
@@ -20,4 +21,6 @@ class GetNews:
             else:
                 return {'error': response.text}
 
+
+news_api_processing = GetNews(NEWS_API_KEY)
 

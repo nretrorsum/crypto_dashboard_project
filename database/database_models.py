@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey, DECIMAL
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -35,7 +35,8 @@ class UserPortfolio(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'),nullable=False)
     ticker = Column(String(50), nullable=False)
-    value = Column(Integer, nullable=False)
+    value = Column(DECIMAL(precision=20, scale=5), nullable=False)
+    price = Column(DECIMAL(precision=20, scale=5), nullable=False)
     setup_time = Column(TIMESTAMP, nullable=False)
 
     user = relationship('UserTable', back_populates='portfolio')

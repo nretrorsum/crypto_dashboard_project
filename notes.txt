@@ -1,2 +1,2 @@
 таблиця юзера має підписку, має бути сторінка вибора підписки
-
+make a sort algorithm based on key word cmc_rank, which we will use in function which return us a crypto data

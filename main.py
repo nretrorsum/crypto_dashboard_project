@@ -1,9 +1,13 @@
-from fastapi import FastAPI
+from http.client import HTTPException
+
+from fastapi import FastAPI, HTTPException
 from api_processing.api_request import AllCoinsRequest, CoinRequest
 from api_processing.news_processing import news_api_processing
 from auth.auth import auth_router
 from routers.user_routers import user_router
 from config import CMC_API_KEY
+import redis
+import json
 
 app = FastAPI()
 app.include_router(
@@ -47,3 +51,21 @@ async def app_get_news(currency_name: str):
     result = await news_api_processing.get_news(currency_name)
 
     return {"status": "success", "data": result}
+
+redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
+
+@app.post('/cache_currency_list')
+async def cache_currency_list():
+    data = await data_request.get_data()
+    json_data= json.dumps(data)
+
+    redis_client.setex("cryptocurrencies", 3600, json_data)
+    return {'status': 'Data cached'}
+
+@app.get("/get_all_data")
+async def get_all_data():
+    # Отримуємо всі дані
+    data = redis_client.get("cryptocurrencies")
+    if data:
+        return json.loads(data)
+    raise HTTPException(status_code=404, detail="No data found")

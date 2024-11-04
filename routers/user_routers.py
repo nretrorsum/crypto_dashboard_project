@@ -90,3 +90,4 @@ async def get_user_portfolio(auth:user_dependency, id: int, db:db_dependency):
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
     return result
+

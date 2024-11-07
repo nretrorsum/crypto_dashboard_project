@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette import status
 
-from database.database_connection import get_db
+from database.database_connection import db_dependency
 from database.database_models import UserTable
 from auth.models import User, Token
 from passlib.context import CryptContext
@@ -15,7 +15,6 @@ from config import SECRET_KEY, ALGORITHM
 
 auth_router = APIRouter()
 
-db_dependency = Annotated[Session, Depends(get_db)]
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='/auth/token')

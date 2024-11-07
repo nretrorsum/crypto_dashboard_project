@@ -22,8 +22,6 @@ app.include_router(
     tags=["Users"]
 )
 
-
-
 data_request = AllCoinsRequest(
     base_url= 'https://pro-api.coinmarketcap.com',
     api_key= f'{CMC_API_KEY}',

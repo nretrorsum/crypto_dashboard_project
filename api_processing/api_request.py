@@ -20,7 +20,7 @@ class AllCoinsRequest(HTTPClient):
     async def get_data(self):
         async with self._session.get('/v1/cryptocurrency/listings/latest') as resp:
             result = await resp.json()
-            if resp.status == 200:
+            if  resp.status == 200:
                 crypto_data = result['data']
                 key_to_sort = 'cmc_rank'
                 sorted_crypto_data = sorted(crypto_data, key=itemgetter(key_to_sort))

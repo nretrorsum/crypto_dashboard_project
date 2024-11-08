@@ -33,8 +33,6 @@ coin_data_request = CoinRequest(
 @app.get("/currencies")
 async def get_currencies():
     data = await data_request.get_data()
-    if "error" in data:
-        return {"status": "failed", "message": data["error"]}
     return {"status": "success", "data": data}
 
 @app.get("/coin/{id}")

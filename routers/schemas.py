@@ -24,7 +24,7 @@ class AddPortfolio(BaseModel):
     id: int
     user_id: int
     ticker: str
-    value: int
+    value: Decimal
     price: Decimal
     setup_time: datetime
 
@@ -32,6 +32,6 @@ class ReadPortfolio(BaseModel):
     id: int
     user_id: int
     ticker: str
-    value: int
+    value: Decimal
     price: Decimal
     setup_time: datetime

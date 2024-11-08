@@ -1,17 +1,8 @@
-from abc import ABC, abstractmethod
-
-from sqlalchemy import select
+from sqlalchemy import select, insert
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
-
 from database.database_connection import async_session
-
-
-class Database(ABC):
-
-    @abstractmethod
-    async def get_user(self, user_id, user_model):
-        raise NotImplementedError
-
+from database.CRUD_class import Database
 
 class DatabaseRepository(Database):
     def __init__(self, db):
@@ -43,3 +34,23 @@ class DatabaseRepository(Database):
                 "is_verified": user_data.is_verified,
             }
             return user_dict
+
+    async def get_portfolio(self, user_id, portfolio_model):
+        async with self.db as session:
+            query = (
+                select(portfolio_model)
+                .where(portfolio_model.user_id == user_id)
+            )
+
+            result = await session.execute(query)
+            portfolio = result.scalars().all()
+            return portfolio
+
+    async def add_portfolio(self, user_id, portfolio_model, **kwargs):
+        async with self.db as session:
+            stmt = insert(portfolio_model).values(user_id = user_id, **kwargs)
+
+            await session.execute(stmt)
+            await session.commit()
+
+            return {'status': 'success'}

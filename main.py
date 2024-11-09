@@ -10,6 +10,9 @@ import redis
 import json
 
 app = FastAPI()
+
+redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
+
 app.include_router(
     auth_router,
     prefix="/auth",
@@ -30,10 +33,6 @@ coin_data_request = CoinRequest(
     base_url= 'https://pro-api.coinmarketcap.com',
     api_key= f'{CMC_API_KEY}',
 )
-@app.get("/currencies")
-async def get_currencies():
-    data = await data_request.get_data()
-    return {"status": "success", "data": data}
 
 @app.get("/coin/{id}")
 async def get_coin(id: int):
@@ -44,23 +43,20 @@ async def get_coin(id: int):
 
 @app.get("/news/{currency_name}")
 async def app_get_news(currency_name: str):
-    result = await news_api_processing.get_news(currency_name)
+    data = await news_api_processing.get_news(currency_name)
+    result = data['articles'][:3]
 
     return {"status": "success", "data": result}
 
-redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
-
-@app.post('/cache_currency_list')
+@app.post('/cache_currency_list', status_code=201)
 async def cache_currency_list():
     data = await data_request.get_data()
     json_data= json.dumps(data)
-
     redis_client.setex("cryptocurrencies", 3600, json_data)
     return {'status': 'Data cached'}
 
-@app.get("/get_all_data")
-async def get_all_data():
-    # Отримуємо всі дані
+@app.get('/get_currencies', status_code=200)
+async def get_currencies():
     data = redis_client.get("cryptocurrencies")
     if data:
         return json.loads(data)

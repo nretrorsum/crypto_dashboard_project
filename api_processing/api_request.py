@@ -1,7 +1,6 @@
-from locale import currency
 from aiohttp import ClientSession
 from operator import itemgetter
-from typing import List
+from config import CMC_API_KEY
 
 
 class HTTPClient:
@@ -37,3 +36,13 @@ class CoinRequest(HTTPClient):
                 return result['data'][str(id)]
             else:
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
+
+
+data_request = AllCoinsRequest(
+    base_url= 'https://pro-api.coinmarketcap.com',
+    api_key= f'{CMC_API_KEY}',
+)
+coin_data_request = CoinRequest(
+    base_url= 'https://pro-api.coinmarketcap.com',
+    api_key= f'{CMC_API_KEY}',
+)

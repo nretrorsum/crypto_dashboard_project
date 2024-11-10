@@ -6,8 +6,7 @@ from database.database_connection import db_dependency
 from database.database_models import UserTable, UserPortfolio
 from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPortfolio
 from database.repository import DatabaseRepository
-
-repository = DatabaseRepository(db_dependency)
+from database.repository import repository
 user_router = APIRouter()
 
 user_dependency = Annotated[dict, Depends(get_current_user)]

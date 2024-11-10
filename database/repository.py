@@ -1,7 +1,9 @@
+from typing import List, AnyStr, Any
+
 from sqlalchemy import select, insert, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
-from database.database_connection import async_session
+from database.database_connection import async_session, db_dependency
 from database.CRUD_class import Database
 
 class DatabaseRepository(Database):
@@ -35,16 +37,27 @@ class DatabaseRepository(Database):
             }
             return user_dict
 
-    async def get_portfolio(self, user_id, portfolio_model):
+    async def get_portfolio(self, current_user_id, portfolio_model):
         async with self.db as session:
             query = (
                 select(portfolio_model)
-                .where(portfolio_model.user_id == user_id)
+                .where(portfolio_model.user_id == current_user_id)
             )
 
             result = await session.execute(query)
             portfolio = result.scalars().all()
+
             return portfolio
+
+    async def get_portfolio_by_user(self, user_id, portfolio_id, portfolio_model) -> List[Any]:
+        async with self.db as session:
+            query = (select(portfolio_model).where(portfolio_model.user_id == user_id).where(portfolio_model.id == portfolio_id))
+
+            result = await session.execute(query)
+            data = result.scalars().first()
+
+            return data
+
 
     async def add_portfolio(self, user_id, portfolio_model, request):
         async with self.db as session:
@@ -64,3 +77,4 @@ class DatabaseRepository(Database):
 
             return {'status': 'success', 'response': 'Value updated'}
 
+repository = DatabaseRepository(db_dependency)

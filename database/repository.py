@@ -46,9 +46,9 @@ class DatabaseRepository(Database):
             portfolio = result.scalars().all()
             return portfolio
 
-    async def add_portfolio(self, user_id, portfolio_model, **kwargs):
+    async def add_portfolio(self, user_id, portfolio_model, request):
         async with self.db as session:
-            stmt = insert(portfolio_model).values(user_id = user_id, **kwargs)
+            stmt = insert(portfolio_model).values(user_id = user_id, **request.dict())
 
             await session.execute(stmt)
             await session.commit()

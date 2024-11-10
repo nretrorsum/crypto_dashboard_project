@@ -11,5 +11,5 @@ class Database(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def add_portfolio(self, user_id, model):
+    async def add_portfolio(self, user_id, model, request):
         raise NotImplementedError

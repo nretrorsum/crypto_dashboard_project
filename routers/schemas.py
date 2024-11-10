@@ -21,8 +21,6 @@ class ReadUser(BaseModel):
     is_verified: bool
 
 class AddPortfolio(BaseModel):
-    id: int
-    user_id: int
     ticker: str
     value: Decimal
     price: Decimal

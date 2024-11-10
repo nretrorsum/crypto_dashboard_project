@@ -49,11 +49,8 @@ async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfol
         repository
         .add_portfolio(user_id = id,
                        portfolio_model = UserPortfolio,
-                       ticker = request.ticker,
-                       value = request.value,
-                       price = request.price,
-                       setup_time = request.setup_time
-                        )
+                       request = request
+                       )
     )
     return data_insert
 

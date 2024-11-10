@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 from database.database_connection import async_session
@@ -54,3 +54,13 @@ class DatabaseRepository(Database):
             await session.commit()
 
             return {'status': 'success'}
+
+    async def update_portfolio(self, user_id, portfolio_id, portfolio_model, request):
+        async with self.db as session:
+            stmt = update(portfolio_model).where(portfolio_model.user_id == user_id).where(portfolio_model.id == portfolio_id).values(**request.dict())
+
+            await session.execute(stmt)
+            await session.commit()
+
+            return {'status': 'success', 'response': 'Value updated'}
+

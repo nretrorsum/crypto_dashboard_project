@@ -1,3 +1,4 @@
+import decimal
 from typing import List
 
 from pydantic import BaseModel
@@ -33,3 +34,6 @@ class ReadPortfolio(BaseModel):
     value: Decimal
     price: Decimal
     setup_time: datetime
+
+class UpdateUserPortfolio(BaseModel):
+    value: Decimal

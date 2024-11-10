@@ -4,7 +4,7 @@ from starlette import status
 from auth.auth import get_current_user
 from database.database_connection import db_dependency
 from database.database_models import UserTable, UserPortfolio
-from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio
+from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPortfolio
 from database.repository import DatabaseRepository
 
 repository = DatabaseRepository(db_dependency)
@@ -47,10 +47,18 @@ async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfol
 
     data_insert = await (
         repository
-        .add_portfolio(user_id = id,
-                       portfolio_model = UserPortfolio,
-                       request = request
-                       )
+        .add_portfolio(user_id = id, portfolio_model = UserPortfolio, request = request)
     )
     return data_insert
 
+@user_router.patch('/user/{id}/portfolio/{portfolio_id}', status_code=status.HTTP_200_OK)
+async def update_user_portfolio(auth: user_dependency, id: int, portfolio_id: int, request: UpdateUserPortfolio):
+    if auth is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    if auth['user_id'] != id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    data_update = await repository.update_portfolio(user_id = id, portfolio_id = portfolio_id, portfolio_model= UserPortfolio, request = request)
+
+    return data_update

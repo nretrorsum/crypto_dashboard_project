@@ -21,6 +21,7 @@ class UserTable(Base):
     portfolio = relationship('UserPortfolio', back_populates='user')
     sub = relationship('Subscription', back_populates='user')
 
+
 class Subscription(Base):
     __tablename__ = 'subscriptions'
 

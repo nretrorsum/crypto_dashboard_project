@@ -2,15 +2,14 @@ from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 from auth.auth import get_current_user
-from database.database_connection import db_dependency
 from database.database_models import UserTable, UserPortfolio
+from routers.cache_operations import get_cached_user, cache_user
 from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPortfolio
-from database.repository import DatabaseRepository
 from database.repository import repository
+
 user_router = APIRouter()
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
-
 
 @user_router.get('/user/{id}', response_model=ReadUser)
 async def read_user(auth: user_dependency, id: int) -> ReadUser:
@@ -19,8 +18,17 @@ async def read_user(auth: user_dependency, id: int) -> ReadUser:
 
     if auth['user_id'] != id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    cached_user = get_cached_user(id)
+    if cached_user:
+        return cached_user
+
     data = await repository.get_user(id, UserTable)
-    return data
+    if data:
+        user_data = ReadUser.from_orm(data)
+        cache = cache_user(id, user_data)
+        return user_data
+
 
 @user_router.get('/portfolio/{id}')
 async def read_user_portfolio(auth: user_dependency, id: int) -> List[ReadPortfolio]:

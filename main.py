@@ -5,14 +5,14 @@ from app_functions.investment import Investment
 from auth.auth import auth_router
 from database.repository import repository
 from routers.user_routers import user_router
-import redis
+from routers.cache_operations import redis_client, cache_currencies, get_cached_cryptodata
 import json
 from api_processing.api_request import data_request, coin_data_request
+
 
 app = FastAPI()
 investment = Investment(repository, coin_data_request)
 
-redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 app.include_router(
     auth_router,
@@ -41,20 +41,24 @@ async def app_get_news(currency_name: str):
 
     return {"status": "success", "data": result}
 
-@app.post('/cache_currency_list', status_code=201)
+@app.get('/cached_currency_list', status_code=200)
 async def cache_currency_list():
-    data = await data_request.get_data()
-    json_data= json.dumps(data)
-    redis_client.setex("cryptocurrencies", 3600, json_data)
-    return {'status': 'Data cached'}
+    cached_data = get_cached_cryptodata()
+    if cached_data:
+        return {"status": "success", "data": cached_data}
 
+    data = await data_request.get_data()
+    if data:
+        cache_currencies(data)
+        return {"status": "success", "data": data}
+"""
 @app.get('/get_currencies', status_code=200)
 async def get_currencies():
     data = redis_client.get("cryptocurrencies")
     if data:
         return json.loads(data)
     raise HTTPException(status_code=404, detail="No data found")
-
+"""
 @app.get('/get_profit/{user_id}/{portfolio_id}', status_code=200)
 async def get_profit(user_id: int, portfolio_id: int):
     performance_data = await investment.calculate_portfolio_performance(user_id, portfolio_id)

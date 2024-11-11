@@ -21,6 +21,9 @@ class ReadUser(BaseModel):
     is_active: bool
     is_verified: bool
 
+    class Config:
+        from_attributes = True
+
 class AddPortfolio(BaseModel):
     ticker: str
     value: Decimal

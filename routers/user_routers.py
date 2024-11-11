@@ -61,3 +61,15 @@ async def update_user_portfolio(auth: user_dependency, id: int, portfolio_id: in
     data_update = await repository.update_portfolio(user_id = id, portfolio_id = portfolio_id, portfolio_model= UserPortfolio, request = request)
 
     return data_update
+
+@user_router.delete('/user/{id}/portfolio/{portfolio_id}')
+async def delete_user_portfolio(auth: user_dependency, id: int, portfolio_id: int):
+    if auth is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    if auth['user_id'] != id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    data_delete = await repository.delete_portfolio(user_id = id, portfolio_id = portfolio_id, portfolio_model= UserPortfolio)
+
+    return data_delete

@@ -1,6 +1,6 @@
 from typing import List, AnyStr, Any
 
-from sqlalchemy import select, insert, update
+from sqlalchemy import select, insert, update, delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 from database.database_connection import async_session, db_dependency
@@ -77,4 +77,11 @@ class DatabaseRepository(Database):
 
             return {'status': 'success', 'response': 'Value updated'}
 
+    async def delete_portfolio(self, user_id, portfolio_id, portfolio_model):
+        async with self.db as session:
+            stmt = delete(portfolio_model).where(portfolio_model.user_id == user_id).where(portfolio_model.id == portfolio_id)
+            await session.execute(stmt)
+            await session.commit()
+
+            return {'status': 'portfolio deleted'}
 repository = DatabaseRepository(db_dependency)

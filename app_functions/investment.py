@@ -9,9 +9,8 @@ from routers.schemas import ReadPortfolio
 
 
 class Investment:
-    def __init__(self, repository, data_request, coin_request):
+    def __init__(self, repository, coin_request):
         self.repository = repository
-        self.foreign_api_data = data_request
         self.coin_request = coin_request
 
     async def get_portfolio_data(self, user_id, portfolio_id):

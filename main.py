@@ -10,7 +10,7 @@ import json
 from api_processing.api_request import data_request, coin_data_request
 
 app = FastAPI()
-investment = Investment(repository, data_request, coin_data_request)
+investment = Investment(repository, coin_data_request)
 
 redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
 

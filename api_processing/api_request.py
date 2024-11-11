@@ -37,6 +37,15 @@ class CoinRequest(HTTPClient):
             else:
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
 
+    async def get_coin_data_by_symbol(self, symbol: str):
+        async with self._session.get('/v2/cryptocurrency/quotes/latest',
+                                     params={'symbol': symbol}) as resp:
+            result = await resp.json()
+            if resp.status == 200:
+                return result['data'][str(symbol)]
+            else:
+                return {"error": f"Failed to fetch data, status code: {resp.status}"}
+
 
 data_request = AllCoinsRequest(
     base_url= 'https://pro-api.coinmarketcap.com',

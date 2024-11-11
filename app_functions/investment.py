@@ -9,9 +9,10 @@ from routers.schemas import ReadPortfolio
 
 
 class Investment:
-    def __init__(self, repository, data_request):
+    def __init__(self, repository, data_request, coin_request):
         self.repository = repository
         self.foreign_api_data = data_request
+        self.coin_request = coin_request
 
     async def get_portfolio_data(self, user_id, portfolio_id):
         # Отримуємо портфель для користувача, де кожен елемент це словник
@@ -26,26 +27,20 @@ class Investment:
         return {"roi": round(roi, 2), "profit": round(profit, 2)}
 
     async def calculate_portfolio_performance(self, user_id: int, portfolio_id: int):
-        # Отримуємо дані портфеля
         portfolio_data = await self.get_portfolio_data(user_id, portfolio_id)
 
-        # Якщо портфель не знайдений
         if not portfolio_data:
             return {"status": "error", "message": "Portfolio not found"}
 
-        # Тепер ми працюємо з одиничним об'єктом, а не зі списком
-        ticker = portfolio_data['ticker']
-        purchase_price = Decimal(portfolio_data['price'])
-        value = Decimal(portfolio_data['value'])
-        setup_time = portfolio_data['setup_time']
+        ticker = portfolio_data.ticker
+        purchase_price = Decimal(portfolio_data.price)
+        value = Decimal(portfolio_data.value)
+        setup_time = portfolio_data.setup_time
 
-        # Отримання поточної ціни з API
         current_price = await self.get_current_price(ticker)
 
-        # Розрахунок ROI та прибутку
         roi_data = self.calculate_roi(ticker, value, purchase_price, current_price)
 
-        # Повертаємо результат
         return {
             "ticker": ticker,
             "purchase_price": purchase_price,
@@ -56,8 +51,20 @@ class Investment:
         }
 
     async def get_current_price(self, ticker: str):
-        data = await self.foreign_api_data.get_coin_data(ticker)
-        if "error" in data:
+        data = await self.coin_request.get_coin_data_by_symbol(ticker)
+
+        if isinstance(data, list) and data:
+            price_data = data[0]
+            try:
+                price = price_data['quote']['USD']['price']
+                return Decimal(price)
+            except KeyError:
+                print("No 'price' key in requested data structure", price_data)
+                raise HTTPException(status_code=404, detail="Price data not found for ticker.")
+        else:
+            print("Unresolved data structure:", data)
             raise HTTPException(status_code=404, detail="Coin data not found")
-        return Decimal(data['price'])
+
+
+
 

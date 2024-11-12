@@ -6,6 +6,7 @@ from database.database_models import UserTable, UserPortfolio
 from routers.cache_operations import get_cached_user, cache_user
 from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPortfolio
 from database.repository import repository
+from app_functions.investment import investment
 
 user_router = APIRouter()
 

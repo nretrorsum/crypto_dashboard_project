@@ -1,4 +1,4 @@
-from typing import List, AnyStr, Any
+from typing import List, Any
 
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.dialects.postgresql import insert
@@ -84,4 +84,5 @@ class DatabaseRepository(Database):
             await session.commit()
 
             return {'status': 'portfolio deleted'}
+
 repository = DatabaseRepository(db_dependency)

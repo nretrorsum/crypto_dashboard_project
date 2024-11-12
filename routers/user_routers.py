@@ -81,3 +81,8 @@ async def delete_user_portfolio(auth: user_dependency, id: int, portfolio_id: in
     data_delete = await repository.delete_portfolio(user_id = id, portfolio_id = portfolio_id, portfolio_model= UserPortfolio)
 
     return data_delete
+
+@user_router.get('/get_profit/{user_id}/{portfolio_id}', status_code=200)
+async def get_profit(user_id: int, portfolio_id: int):
+    performance_data = await investment.calculate_portfolio_performance(user_id, portfolio_id)
+    return {"status": "success", "data": performance_data}

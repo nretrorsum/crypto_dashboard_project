@@ -1,11 +1,8 @@
-from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Any
-
+from api_processing.api_request import coin_data_request
 from fastapi import HTTPException
-
+from database.repository import repository
 from database.database_models import UserPortfolio
-from routers.schemas import ReadPortfolio
 
 
 class Investment:
@@ -64,6 +61,6 @@ class Investment:
             print("Unresolved data structure:", data)
             raise HTTPException(status_code=404, detail="Coin data not found")
 
-
+investment = Investment(repository, coin_data_request)
 
 

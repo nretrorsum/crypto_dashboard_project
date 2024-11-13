@@ -70,10 +70,6 @@ async def register_user(request: User, db: db_dependency):
 
     return {'message': 'User created'}
 
-@auth_router.post('/login', status_code=status.HTTP_201_CREATED)
-async def login_user(email: str, password: str, db: db_dependency):
-    pass
-
 @auth_router.post('/token', response_model=Token)
 async def create_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
     user = await authenticate_user(form_data.username, form_data.password, db)

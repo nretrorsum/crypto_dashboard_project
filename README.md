@@ -1,5 +1,5 @@
 # Creating a markdown file with detailed API documentation based on the user's provided code
-##Code review
+Code review
 This code showcases a well-structured FastAPI application that includes essential features for a user-centered cryptocurrency portfolio and news service, with particular attention to secure authentication, caching, and efficient data access.
 
 Key Features

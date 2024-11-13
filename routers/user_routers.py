@@ -1,3 +1,4 @@
+from os import access
 from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
@@ -8,6 +9,7 @@ from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPor
 from database.repository import repository
 from app_functions.investment import investment
 from auth.auth import user_dependency
+from auth.permissions import permission_dependency
 
 user_router = APIRouter()
 @user_router.get('/user/{id}', response_model=ReadUser)
@@ -30,7 +32,13 @@ async def read_user(auth: user_dependency, id: int) -> ReadUser:
 
 
 @user_router.get('/portfolio/{id}')
-async def read_user_portfolio(id: int, auth: user_dependency) -> List[ReadPortfolio]:
+async def read_user_portfolio(id: int, auth: user_dependency, access: permission_dependency) -> List[ReadPortfolio]:
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    if auth is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     if auth['user_id'] != id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
@@ -40,7 +48,10 @@ async def read_user_portfolio(id: int, auth: user_dependency) -> List[ReadPortfo
 
     return data
 @user_router.post('/user/{id}/portfolio', status_code= status.HTTP_201_CREATED)
-async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfolio):
+async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfolio, access: permission_dependency):
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
     if auth is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -54,7 +65,10 @@ async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfol
     return data_insert
 
 @user_router.patch('/user/{id}/portfolio/{portfolio_id}', status_code=status.HTTP_200_OK)
-async def update_user_portfolio(auth: user_dependency, id: int, portfolio_id: int, request: UpdateUserPortfolio):
+async def update_user_portfolio(auth: user_dependency, id: int, portfolio_id: int, request: UpdateUserPortfolio, access: permission_dependency):
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
     if auth is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -66,7 +80,10 @@ async def update_user_portfolio(auth: user_dependency, id: int, portfolio_id: in
     return data_update
 
 @user_router.delete('/user/{id}/portfolio/{portfolio_id}')
-async def delete_user_portfolio(auth: user_dependency, id: int, portfolio_id: int):
+async def delete_user_portfolio(auth: user_dependency, id: int, portfolio_id: int, access: permission_dependency):
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
     if auth is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -78,6 +95,15 @@ async def delete_user_portfolio(auth: user_dependency, id: int, portfolio_id: in
     return data_delete
 
 @user_router.get('/get_profit/{user_id}/{portfolio_id}', status_code=200)
-async def get_profit(user_id: int, portfolio_id: int):
-    performance_data = await investment.calculate_portfolio_performance(user_id, portfolio_id)
+async def get_profit(id: int, portfolio_id: int, auth: user_dependency, access: permission_dependency):
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    if auth is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    if auth['user_id'] != id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    performance_data = await investment.calculate_portfolio_performance(id, portfolio_id)
     return {"status": "success", "data": performance_data}

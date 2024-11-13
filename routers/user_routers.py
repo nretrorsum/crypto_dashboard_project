@@ -7,11 +7,9 @@ from routers.cache_operations import get_cached_user, cache_user
 from routers.schemas import ReadUser, AddPortfolio, ReadPortfolio, UpdateUserPortfolio
 from database.repository import repository
 from app_functions.investment import investment
+from auth.auth import user_dependency
 
 user_router = APIRouter()
-
-user_dependency = Annotated[dict, Depends(get_current_user)]
-
 @user_router.get('/user/{id}', response_model=ReadUser)
 async def read_user(auth: user_dependency, id: int) -> ReadUser:
     if auth is None:
@@ -32,19 +30,15 @@ async def read_user(auth: user_dependency, id: int) -> ReadUser:
 
 
 @user_router.get('/portfolio/{id}')
-async def read_user_portfolio(auth: user_dependency, id: int) -> List[ReadPortfolio]:
-    if auth is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
+async def read_user_portfolio(id: int, auth: user_dependency) -> List[ReadPortfolio]:
     if auth['user_id'] != id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     data = await repository.get_portfolio(id, UserPortfolio)
     if len(data) == 0:
-        raise HTTPException(status_code=404, detail="Not find such portfolio for this user")
+        raise HTTPException(status_code=404, detail="No portfolio found for this user")
 
     return data
-
 @user_router.post('/user/{id}/portfolio', status_code= status.HTTP_201_CREATED)
 async def add_user_portfolio(auth: user_dependency, id: int, request: AddPortfolio):
     if auth is None:

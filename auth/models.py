@@ -1,7 +1,9 @@
 from decimal import Decimal
 from datetime import datetime
-from typing import List, Optional
+from enum import Enum
+from typing import Optional
 from pydantic import BaseModel
+
 
 class Subscription(BaseModel):
     id:int
@@ -32,3 +34,7 @@ class UserPortfolio(BaseModel):
     value: Decimal
     price: Decimal
     setup_time: datetime
+
+class Permission(str, Enum):
+    FREE_PLAN = 'free'
+    PRO_PLAN = 'pro'

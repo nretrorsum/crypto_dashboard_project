@@ -1,8 +1,9 @@
 from typing import Optional
 import redis
 from routers.schemas import ReadUser
+from config import REDIS_HOST, REDIS_PORT
 
-redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
+redis_client = redis.Redis(host=f'{REDIS_HOST}', port=f'{REDIS_PORT}', db=0)
 
 def cache_user(user_id: int, user_data: ReadUser):
     redis_client.set(f'user: {user_id}', user_data.json(), ex=3600)

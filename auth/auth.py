@@ -4,12 +4,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 from starlette import status
-
 from database.database_connection import db_dependency
 from database.database_models import UserTable
-from auth.models import User, Token
+from auth.models import User, Token, Permission
 from passlib.context import CryptContext
 from config import SECRET_KEY, ALGORITHM
 
@@ -84,3 +82,18 @@ async def create_access_token(form_data: Annotated[OAuth2PasswordRequestForm, De
                             detail='Could not authenticate user')
     token = await create_jwt_token(user.email, user.id, timedelta(minutes=60))
     return {'access_token': token, 'token_type': 'Bearer', 'user_id': user.id}
+
+user_dependency = Annotated[dict, Depends(get_current_user)]
+"""
+async def check_permission(auth: dict, required_permission: Permission):
+    if auth['subscription']['tag'] != required_permission.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient subscription level for this operation"
+        )
+
+def check_permission_dependency(required_permission: Permission):
+    async def dependency(auth: user_dependency = Depends(get_current_user)):
+        await check_permission(auth, required_permission)
+    return Depends(dependency)
+"""

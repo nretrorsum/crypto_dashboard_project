@@ -15,10 +15,19 @@ def get_cached_user(user_id: int) -> Optional[ReadUser]:
     return None
 
 def cache_currencies(data: str):
-    redis_client.set('crypto_data', str(data), ex=3600)
+    redis_client.set('crypto_data', str(data), ex=1800)
 
 def get_cached_cryptodata():
     cached_cryptodata = redis_client.get('crypto_data')
     if cached_cryptodata:
         return eval(cached_cryptodata)
+    return None
+
+def cache_coin(data:str, ticker: str):
+    redis_client.set(f'coin:{ticker}', str(data), ex=300)
+
+def get_cached_coin(ticker: str):
+    cached_coin = redis_client.get(f'coin:{ticker}')
+    if cached_coin:
+        return eval(cached_coin)
     return None

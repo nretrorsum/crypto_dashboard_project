@@ -1,6 +1,7 @@
 from aiohttp import ClientSession
 from operator import itemgetter
 from config import CMC_API_KEY
+from routers.cache_operations import cache_coin, get_cached_coin
 
 
 class HTTPClient:
@@ -38,11 +39,20 @@ class CoinRequest(HTTPClient):
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
 
     async def get_coin_data_by_symbol(self, symbol: str):
+        cached_data = get_cached_coin(symbol)
+        if cached_data:
+            return cached_data
+
         async with self._session.get('/v2/cryptocurrency/quotes/latest',
                                      params={'symbol': symbol}) as resp:
             result = await resp.json()
             if resp.status == 200:
-                return result['data'][str(symbol)]
+                data = result['data'][str(symbol)]
+                if result:
+                    cache_coin(data, symbol)
+                    return data
+                else:
+                    return {'error': 'Failed to cache coin data'}
             else:
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
 

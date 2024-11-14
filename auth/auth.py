@@ -80,16 +80,3 @@ async def create_access_token(form_data: Annotated[OAuth2PasswordRequestForm, De
     return {'access_token': token, 'token_type': 'Bearer', 'user_id': user.id}
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
-"""
-async def check_permission(auth: dict, required_permission: Permission):
-    if auth['subscription']['tag'] != required_permission.value:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient subscription level for this operation"
-        )
-
-def check_permission_dependency(required_permission: Permission):
-    async def dependency(auth: user_dependency = Depends(get_current_user)):
-        await check_permission(auth, required_permission)
-    return Depends(dependency)
-"""

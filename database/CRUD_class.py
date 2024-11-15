@@ -25,3 +25,7 @@ class Database(ABC):
     @abstractmethod
     async def delete_portfolio(self, user_id, portfolio_id, model):
         raise NotImplementedError
+
+    @abstractmethod
+    async def add_help_message(self, user_id, help_model, request):
+        raise NotImplementedError

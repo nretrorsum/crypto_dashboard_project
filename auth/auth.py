@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta, datetime
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -7,7 +8,7 @@ from sqlalchemy import select
 from starlette import status
 from database.database_connection import db_dependency
 from database.database_models import UserTable
-from auth.models import User, Token, Permission
+from auth.models import User, Token
 from passlib.context import CryptContext
 from config import SECRET_KEY, ALGORITHM
 
@@ -30,8 +31,8 @@ async def authenticate_user(email: str, hashed_password: str, db):
 
     return user
 
-async def create_jwt_token(email: str, user_id: int, expiration: timedelta):
-    encode = {'sub': email, 'id': user_id}
+async def create_jwt_token(email: str, user_id: uuid.UUID, expiration: timedelta):
+    encode = {'sub': email, 'id': str(user_id)}
     expires = datetime.utcnow() + expiration
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -40,7 +41,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get('sub')
-        user_id: int = payload.get('id')
+        user_id: str = payload.get('id')
         if email is None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not authenticate user')
         return {'email': email, 'user_id': user_id}
@@ -53,7 +54,7 @@ async def register_user(request: User, db: db_dependency):
     expiration =  timedelta(weeks=4)
 
     create_user_model =UserTable(
-        id = request.id,
+        id = uuid.uuid4(),
         name = request.name,
         email = request.email,
         hashed_password = bcrypt_context.hash(request.hashed_password),
@@ -80,16 +81,3 @@ async def create_access_token(form_data: Annotated[OAuth2PasswordRequestForm, De
     return {'access_token': token, 'token_type': 'Bearer', 'user_id': user.id}
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
-"""
-async def check_permission(auth: dict, required_permission: Permission):
-    if auth['subscription']['tag'] != required_permission.value:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient subscription level for this operation"
-        )
-
-def check_permission_dependency(required_permission: Permission):
-    async def dependency(auth: user_dependency = Depends(get_current_user)):
-        await check_permission(auth, required_permission)
-    return Depends(dependency)
-"""

@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from decimal import Decimal
+import uuid
 
 class Subscription(BaseModel):
     id: int
@@ -8,7 +9,7 @@ class Subscription(BaseModel):
     price: int
 
 class ReadUser(BaseModel):
-    id:int
+    id:uuid.UUID
     name:str
     email:str
     subscription: Subscription
@@ -29,7 +30,7 @@ class AddPortfolio(BaseModel):
 
 class ReadPortfolio(BaseModel):
     id: int
-    user_id: int
+    user_id: uuid.UUID
     ticker: str
     value: Decimal
     price: Decimal
@@ -37,3 +38,7 @@ class ReadPortfolio(BaseModel):
 
 class UpdateUserPortfolio(BaseModel):
     value: Decimal
+
+class AddHelpMessage(BaseModel):
+    text: str
+    add_time: datetime

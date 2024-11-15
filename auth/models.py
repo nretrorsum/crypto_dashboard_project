@@ -1,9 +1,10 @@
+import uuid
 from decimal import Decimal
 from datetime import datetime
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel
-
+import uuid
 
 class Subscription(BaseModel):
     id:int
@@ -11,7 +12,7 @@ class Subscription(BaseModel):
     price: int
 
 class User(BaseModel):
-    id:int
+    id: uuid.UUID
     name:str
     email:str
     hashed_password:str
@@ -25,16 +26,13 @@ class User(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: Optional[str] = 'Bearer'
-    user_id: int
+    user_id: uuid.UUID
 
 class UserPortfolio(BaseModel):
     id: int
-    user_id: int
+    user_id: uuid.UUID
     ticker: str
     value: Decimal
     price: Decimal
     setup_time: datetime
 
-class Permission(str, Enum):
-    FREE_PLAN = 'free'
-    PRO_PLAN = 'pro'

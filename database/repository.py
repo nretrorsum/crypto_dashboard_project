@@ -1,4 +1,5 @@
 from typing import List, Any
+import uuid
 
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.dialects.postgresql import insert
@@ -84,5 +85,14 @@ class DatabaseRepository(Database):
             await session.commit()
 
             return {'status': 'portfolio deleted'}
+
+    async def add_help_message(self, user_id, help_model, request):
+        async with self.db as session:
+            stmt = insert(help_model).values(id = uuid.uuid4(), user_id = user_id, **request.dict())
+
+            await session.execute(stmt)
+            await session.commit()
+
+            return {'status': 'Help message added'}
 
 repository = DatabaseRepository(db_dependency)

@@ -95,7 +95,7 @@ async def delete_user_portfolio(auth: user_dependency, id: UUID, portfolio_id: i
 
     return data_delete
 
-@user_router.get('/get_profit/{user_id}/{portfolio_id}', status_code=200)
+@user_router.get('/get_profit/{id}/{portfolio_id}', status_code=200)
 async def get_profit(id: UUID, portfolio_id: int, auth: user_dependency, access: permission_dependency):
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)

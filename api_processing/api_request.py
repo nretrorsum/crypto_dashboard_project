@@ -42,21 +42,22 @@ class CoinRequest(HTTPClient):
                 return {"error": f"Failed to fetch data, status code: {resp.status}"}
 
     async def get_coin_data_by_symbol(self, symbol: str):
-        cached_data = get_cached_coin(symbol)
-        if cached_data:
-            return cached_data
-
-        async with self._session.get('/v2/cryptocurrency/quotes/latest',
-                                    params={'symbol': symbol}) as resp:
-            result = await resp.json()
-            if resp.status == 200:
-                data = result['data'][str(symbol)]
-                if result:
-                    cache_coin(data, symbol)
-                else:
-                    raise HTTPException(status_code=500, detail="Error caching data")
+            cached_data = get_cached_coin(symbol)
+            if cached_data:
+                return cached_data
             else:
-                raise HTTPException(status_code= 503, detail=f"Failed to fetch data, status code: {resp.status}")
+                async with self._session.get('/v2/cryptocurrency/quotes/latest',
+                                            params={'symbol': symbol}) as resp:
+                    result = await resp.json()
+                    if resp.status == 200:
+                        data = result['data'][str(symbol)]
+                        if result:
+                            cache_coin(data, symbol)
+                            return data
+                        else:
+                            raise HTTPException(status_code=500, detail="Error caching data")
+                    else:
+                        raise HTTPException(status_code= 503, detail=f"Failed to fetch data, status code: {resp.status}")
 
 
 data_request = AllCoinsRequest(

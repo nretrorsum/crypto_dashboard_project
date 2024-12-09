@@ -12,6 +12,7 @@ class UserTable(Base):
     name = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False)
     hashed_password = Column(String(150), nullable=False)
+    refresh_token = Column(UUID(as_uuid=True),ForeignKey('refresh_tokens.id'), default=uuid.uuid4, unique=True)
     subscription = Column(Integer, ForeignKey('subscriptions.id'),nullable=False)
     start_time = Column(TIMESTAMP, nullable=False)
     end_time = Column(TIMESTAMP, nullable=False)
@@ -22,6 +23,7 @@ class UserTable(Base):
     portfolio = relationship('UserPortfolio', back_populates='user')
     sub = relationship('Subscription', back_populates='user')
     help = relationship('HelpTable', back_populates='user')
+    refresh_tokens = relationship('RefreshToken', back_populates='user')
 
 
 class Subscription(Base):
@@ -43,6 +45,13 @@ class UserPortfolio(Base):
     setup_time = Column(TIMESTAMP, nullable=False)
 
     user = relationship('UserTable', back_populates='portfolio')
+
+class RefreshToken(Base):
+    __tablename__ = 'refresh_tokens'
+    id = Column(UUID(as_uuid = True), primary_key=True, default = uuid.uuid4)
+    token = Column(String(230), nullable=False, unique=True)
+
+    user = relationship('UserTable', back_populates='refresh_tokens')
 
 class HelpTable(Base):
     __tablename__ = 'help_messages'

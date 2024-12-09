@@ -15,6 +15,7 @@ from uuid import UUID
 user_router = APIRouter()
 @user_router.get('/user/{id}', response_model=ReadUser)
 async def read_user(auth: user_dependency, id: UUID) -> ReadUser:
+
     if auth is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 

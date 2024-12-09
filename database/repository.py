@@ -6,6 +6,8 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 from database.database_connection import async_session, db_dependency
 from database.CRUD_class import Database
+from database.database_models import UserTable, RefreshToken
+
 
 class DatabaseRepository(Database):
     def __init__(self, db):
@@ -94,5 +96,32 @@ class DatabaseRepository(Database):
             await session.commit()
 
             return {'status': 'Help message added'}
+
+    async def add_refresh_token(self, token, user_email):
+        async with self.db as session:
+            stmt = insert(RefreshToken).values(id = uuid.uuid4(), token = token).returning(RefreshToken.id)
+            result = await session.execute(stmt)
+            refresh_token_id = result.scalar()
+
+            id_stmt = update(UserTable).where(UserTable.email == user_email).values(refresh_token=refresh_token_id)
+            await session.execute(id_stmt)
+            await session.commit()
+
+    async def get_refresh_token(self, user_email):
+        async with self.db as session:
+            query = select(UserTable).where(UserTable.email == user_email)
+            result = await session.execute(query)
+            returning_data = result.scalars().first()
+
+            refresh_token_id = returning_data.refresh_token
+
+            query_rt = select(RefreshToken).where(RefreshToken.id == refresh_token_id)
+            result = await session.execute(query_rt)
+            requested_data = result.scalars().first()
+            if not requested_data:
+                return None
+            data = requested_data
+            token_id =  data.id
+            return token_id
 
 repository = DatabaseRepository(db_dependency)

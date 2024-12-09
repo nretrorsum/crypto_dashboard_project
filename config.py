@@ -15,3 +15,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM")
 REDIS_PORT = os.environ.get("REDIS_PORT")
 REDIS_HOST = os.environ.get("REDIS_HOST")
+
+BASE_EMAIL = os.environ.get("BASE_EMAIL")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
